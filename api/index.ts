@@ -1,31 +1,23 @@
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import { apiKeyAuth } from "./middleware/apiKeyAuth";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 
 const port = process.env.PORT || 3000;
-const allowedOrigins = [
-    "https://your-frontend.vercel.app", // production frontend
-    "http://localhost:5173"             // dev frontend
-];
-
 
 app.use(express.json());
 app.use(cors({
-    /*
-    commenting out bc any origin is allowed
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },*/
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true
 }));
 
+// Limiting the rate for each ip
+app.use(rateLimit({
+    windowMs: 1000, // Time to remember request, so requests will be in memory for 1 seconds
+    limit: 10
+}));
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err) {
         console.error(err);

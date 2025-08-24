@@ -12,7 +12,7 @@
     "url": "git+https://github.com/Lil-Greg/GhostMeme-API.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Gregory Williams (GitHub: Lil-Greg)",
   "license": "ISC",
   "type": "module",
   "bugs": {
@@ -22,7 +22,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.56.0",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

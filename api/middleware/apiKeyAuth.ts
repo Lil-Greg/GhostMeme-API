@@ -20,5 +20,7 @@ export function apiKeyAuth(req: Request, res: Response, next: NextFunction) {
         return res.status(403).json({ error: "Forbidden: Invalid API key" });
     }
 
+    // Check the amount of requests for this api key. 
+
     next();
 }
