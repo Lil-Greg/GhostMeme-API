@@ -1,52 +1,59 @@
 import { NextFunction, Request, Response } from "express";
-import { supabase } from "../../supabase-init";
+import { supabase } from "../../supabase-init.ts";
+import { app, baseUrl } from "../../index.ts";
 
-// /memes (GET) https://hscc6xt8cqqf.docs.apiary.io/#/reference/0/meme-endpoints/memes-get
-export function memesGetEndpoint(req: Request, res: Response, next: NextFunction) {
-    const after = req.params["after"];
+export function memesIdsPutEndpoint(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {}
 
-    // Checking if after is not a number
-    if (after.length > 0 && typeof parseInt(after) !== "number") {
-        res.status(404).json({ success: false, error: "after must be a number (but obvi in a string)" });
-    };
+export function memesIdLikesGetEndpoint(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {}
 
-    const rangeFrom = after.length === 0 ? 0 : parseInt(after);
-    const rangeTo = rangeFrom + 99;
-
-    const data = supabase.from("Memes")
-        .select()
-        .range(rangeFrom, rangeTo);
+export function memesIdLikesUserIdGetEndpoint(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  // Since this exists, likes is most likely an array of user ids, but the likes
+  // get endpoitn only returns the length of that column
 }
 
-// /memes (POST) https://hscc6xt8cqqf.docs.apiary.io/#/reference/0/meme-endpoints/memes-post
-export function memesPostEndpoint(req: Request, res: Response, next: NextFunction) {
+export function memesIdLikesUserIdDeleteEndpoint(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {}
 
+export function memesIdLikesUserIdPutEndpoint(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {}
+
+/**
+ * First escape regex with:
+ * const escapeRegex = str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+ *
+ * Then create an instance of the RegExp class
+ * with the constructor arguments of: escapeRegex and "i"
+ *
+ * This looks like this:
+ * const regex = new RegExp(escapeRegex, "i");
+ *
+ */
+export function memesSearchEndpoint(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { match, regexMatch } = req.params;
 }
 
-export function memesIdsGetEndpoint(req: Request, res: Response, next: NextFunction) {
-
-}
-
-export function memesIdsPutEndpoint(req: Request, res: Response, next: NextFunction) {
-
-}
-
-export function memesIdLikesGetEndpoint(req: Request, res: Response, next: NextFunction) {
-
-}
-
-export function memesIdLikesUserIdGetEndpoint(req: Request, res: Response, next: NextFunction) {
-
-}
-
-export function memesIdLikesUserIdDeleteEndpoint(req: Request, res: Response, next: NextFunction) {
-
-}
-
-export function memesIdLikesUserIdPutEndpoint(req: Request, res: Response, next: NextFunction) {
-
-}
-
-export function memesSearchEndpoint(req: Request, res: Response, next: NextFunction) {
-
+class MemeEndpoints {
+  memesIdsGetEndpoint(next: NextFunction) {}
 }
