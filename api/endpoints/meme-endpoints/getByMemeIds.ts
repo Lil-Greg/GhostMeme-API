@@ -1,6 +1,7 @@
 import { NextFunction } from "express";
 import { app, baseUrl } from "../..";
 import { supabase } from "../../supabase-init";
+import { Meme } from "../../../libs/types/memeTypes";
 
 /**
  * /memes/:meme_id1/:meme_id2/.../:meme_idN (GET)
@@ -8,8 +9,9 @@ import { supabase } from "../../supabase-init";
  * https://hscc6xt8cqqf.docs.apiary.io/#/reference/0/meme-endpoints/memes-meme-id-1-meme-id-2-meme-id-n-get
  */
 
-export function getByMemeIds(next: NextFunction) {
+export function getByMemeIds(res, req, next: NextFunction) {
   app.get(baseUrl + "/memes/:meme_id/*splat", async (req, res) => {
+    console.log("Inside getByMemeIds");
     // how can I get each meme id, get in order, and check them.
 
     const { meme_id, splat } = req.params;
@@ -24,19 +26,12 @@ export function getByMemeIds(next: NextFunction) {
         .eq("meme_id", parseInt(memeId));
 
       if (!data) {
-        res
-          .status(404)
-          .send(
-            `There is an undefined meme_id within the path, potentially at position number ${
-              result.length + 1
-            }.`
-          )
-          .json({
-            success: false,
-            error: `There is an undefined meme_id within the path, potentially at position number ${
-              result.length + 1
-            }.`,
-          });
+        res.status(404).json({
+          success: false,
+          error: `There is an undefined meme_id within the path, potentially at position number ${
+            result.length + 1
+          }.`,
+        });
 
         return;
       }
