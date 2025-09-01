@@ -8,17 +8,12 @@ import { supabase } from "../../supabase-init";
  */
 export function memesGetEndpoint(req, res, next) {
   app.get(baseUrl + "/memes", async (req, res) => {
-    const { after: afterQuery, match, regexMatch } = req.query;
+    const { after: afterQuery } = req.query;
 
     let after = "";
     if (afterQuery) {
       after = afterQuery.toString();
     }
-
-    // TESTING::
-    console.log("Here is the regexMatch: ", regexMatch);
-    console.log("Here is the match: ", match);
-    console.log("Here is the After string: ", after);
 
     // Checking if after is not a number
     if (after && after.length > 0 && typeof parseInt(after) !== "number") {
@@ -28,21 +23,25 @@ export function memesGetEndpoint(req, res, next) {
       });
     }
 
-    const rangeFrom = after ? (after.length === 0 ? 0 : parseInt(after)) : 0;
-    const rangeTo = rangeFrom + 99;
+    // not going to use the range stuff because I can
+    // simply do the gt method (which means greater than)
+    // and limit the results to 100
 
-    const data = await supabase
-      .from("Memes")
-      .select()
-      .range(rangeFrom, rangeTo);
+    const { data, error, status } = after
+      ? await supabase
+          .from("Memes")
+          .select()
+          .gt("meme_id", parseInt(after))
+          .limit(100)
+      : await supabase.from("Memes").select().limit(100);
 
-    if (!data.data) {
-      res.status(data.status).json({
+    if (!data) {
+      res.status(status).json({
         success: false,
-        error: data.error.message,
+        error: error.message,
       });
     }
-    res.status(data.status).json({ success: true, memes: data.data });
+    res.status(status).json({ success: true, memes: data });
   });
 
   next();

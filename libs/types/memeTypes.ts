@@ -26,3 +26,7 @@ export interface MemePost {
   imageUrl: string | null;
   imageBase64: string | null;
 }
+
+export interface Likes {
+  users: string[];
+}

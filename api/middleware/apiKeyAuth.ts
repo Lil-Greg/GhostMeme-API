@@ -10,7 +10,9 @@ export function apiKeyAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers["authorization"];
 
   if (!authHeader) {
-    return res.status(401).json({ error: "Missing Authorization header" });
+    return res
+      .status(401)
+      .json({ success: false, error: "Missing Authorization header" });
   }
 
   // Expect header in format: Authorization: Bearer <API_KEY>
