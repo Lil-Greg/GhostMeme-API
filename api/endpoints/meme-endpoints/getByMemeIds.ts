@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { app, baseUrl } from "../..";
+import app, { baseUrl } from "../..";
 import { supabase } from "../../supabase-init";
 import { Meme } from "../../../libs/types/memeTypes";
 import rateLimit from "express-rate-limit";
@@ -24,6 +24,11 @@ export function getByMemeIds(app, baseUrl) {
 
       // splat is an array
       const { meme_id, splat } = req.params;
+
+      if (splat.includes("likes")) {
+        next();
+        return;
+      }
 
       const memeIds = [meme_id, ...splat];
       const result: Meme[] = [];

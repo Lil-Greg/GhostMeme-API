@@ -1,11 +1,11 @@
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
-import { apiKeyAuth } from "./middleware/apiKeyAuth";
+import { apiKeyAuth } from "./middleware/apiKeyAuth.ts";
 import rateLimit from "express-rate-limit";
-import { getByMemeIds } from "./endpoints/meme-endpoints/getByMemeIds";
-import { memesGetEndpoint } from "./endpoints/meme-endpoints/getMemes";
-import { memesPostEndpoint } from "./endpoints/meme-endpoints/postMeme";
-import { supabase } from "./supabase-init";
+import { getByMemeIds } from "./endpoints/meme-endpoints/getByMemeIds.ts";
+import { memesGetEndpoint } from "./endpoints/meme-endpoints/getMemes.ts";
+import { memesPostEndpoint } from "./endpoints/meme-endpoints/postMeme.ts";
+import { supabase } from "./supabase-init.ts";
 import slowDown from "express-slow-down";
 import {
   deleteByUserId,
@@ -24,7 +24,7 @@ import {
   newFriendRequest,
   postUsers,
   putByUserId,
-} from "./endpoints/user-endpoints/userCalls";
+} from "./endpoints/user-endpoints/userCalls.ts";
 import {
   memesIdLikesGetEndpoint,
   memesIdLikesUserIdDeleteEndpoint,
@@ -32,13 +32,14 @@ import {
   memesIdLikesUserIdPutEndpoint,
   memesIdsPutEndpoint,
   memesSearchEndpoint,
-} from "./endpoints/meme-endpoints/memeCalls";
-import { metadataInfoEndpoint } from "./endpoints/metadataCall";
+} from "./endpoints/meme-endpoints/memeCalls.ts";
+import { metadataInfoEndpoint } from "./endpoints/metadataCall.ts";
 
-export const app = express();
+const app = express();
 export const baseUrl = "/api";
 
-const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
+// On Vercel, there is no need lol!!!😂
+// const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 
 app.use(express.json());
 app.use(
@@ -54,7 +55,6 @@ app.use(
     windowMs: 1000,
     limit: 10, // 10 req per sec
     handler: async (req, res, next, options) => {
-      console.log("Rate Limit Called!!");
       // Setting timeouts
       await supabase
         .from("Memes")
@@ -155,20 +155,8 @@ newFriendRequest(app, baseUrl);
  *
  */
 
-app.get("/test", (req, res, next) => {
-  console.log("Test endpoint called!! 🤯");
-  res.json({ success: true, message: "The ONE PIECE IS REAL!!! 🧔🏼" });
-  next();
-  return;
-});
-
-app.get("/", (res: Response) => {
-  res.json({ message: "Welcome to the Express + TypeScript Server!" });
-});
-
 // Start the Express server
-app.listen(port, () => {
-  console.log(`The server is running at http://localhost:${port}`);
-});
+// app.listen(port);
 
+// For Vercel
 export default app;

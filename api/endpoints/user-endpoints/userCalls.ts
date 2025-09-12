@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { supabase } from "../../supabase-init.ts";
-import { app, baseUrl } from "../../index.ts";
+import app, { baseUrl } from "../../index.ts";
 import { slowDown } from "express-slow-down";
 import { UserPost, UserPut, UserType } from "../../../libs/types/userTypes.ts";
 

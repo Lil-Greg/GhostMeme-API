@@ -31,8 +31,6 @@ export function memesPostEndpoint(app, baseUrl) {
         //!req.body.expiredAt ||
         //!privateExists
       ) {
-        console.log("Request Body from POST: ", req.body);
-
         const errorString = Object.entries(req.body)
           .map(([key, value], index, allVals) => {
             if (!nonnullable.includes(key)) return "";
@@ -57,17 +55,14 @@ export function memesPostEndpoint(app, baseUrl) {
         next();
         return;
       }
-
-      if (req.body.expiredAt)
-        if (req.body.receiver === req.body.owner) {
-          res.status(400).json({
-            success: false,
-            error:
-              "The Receiver of the Meme cannot be the Owner of the Meme 🤓",
-          });
-          next();
-          return;
-        }
+      if (req.body.receiver === req.body.owner) {
+        res.status(400).json({
+          success: false,
+          error: "The Receiver of the Meme cannot be the Owner of the Meme 🤓",
+        });
+        next();
+        return;
+      }
 
       const formData: MemePost = req.body;
 
@@ -77,13 +72,12 @@ export function memesPostEndpoint(app, baseUrl) {
         // year:"numeric",
         dateStyle: "medium",
       }).format(new Date(formData.expiredAt));
-      console.log("Expired At Form Data: ", formData.expiredAt);
       // Transforming private
       if (req.body.private === "false" || req.body.private === "true") {
         formData.private = Boolean(req.body.private);
       }
 
-      const result = await supabase
+      const { data, error, status } = await supabase
         .from("Memes")
         .insert({
           owner: formData.owner,
@@ -95,13 +89,11 @@ export function memesPostEndpoint(app, baseUrl) {
           imageUrl: formData.imageUrl || formData.imageBase64,
         })
         .select();
-      console.log("res Data in .then(): ", result);
 
-      if (!result.data) {
-        console.log("Meme Post Res: ", result);
-        res.status(result.status).json({
+      if (error) {
+        res.status(status).json({
           success: false,
-          error: result.error.message,
+          error: error.message,
         });
         return;
       }
@@ -109,9 +101,9 @@ export function memesPostEndpoint(app, baseUrl) {
       res
         .json({
           success: true,
-          meme: result.data,
+          meme: data[0],
         })
-        .status(201);
+        .status(200);
 
       next();
       return;
