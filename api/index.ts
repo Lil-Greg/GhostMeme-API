@@ -38,8 +38,7 @@ import { metadataInfoEndpoint } from "./endpoints/metadataCall.ts";
 const app = express();
 export const baseUrl = "/api";
 
-// On Vercel, there is no need lol!!!😂
-// const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
+const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 
 app.use(express.json());
 app.use(
@@ -156,7 +155,6 @@ newFriendRequest(app, baseUrl);
  */
 
 // Start the Express server
-// app.listen(port);
+app.listen(port);
 
-// For Vercel
 export default app;
