@@ -1,4 +1,4 @@
-import { NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { app, baseUrl } from "../..";
 import { supabase } from "../../supabase-init";
 import { Meme } from "../../../libs/types/memeTypes";
@@ -11,47 +11,49 @@ import slowDown from "express-slow-down";
  * https://hscc6xt8cqqf.docs.apiary.io/#/reference/0/meme-endpoints/memes-meme-id-1-meme-id-2-meme-id-n-get
  */
 
-export function getByMemeIds(res, req, next: NextFunction) {
+export function getByMemeIds(app, baseUrl) {
   // limit fetches as 10 per sec
-  const limiter = slowDown({
-    windowMs: 1000 * 1,
-    delayAfter: 10,
-    delayMs: 500,
-    maxDelayMs: 1000 * 1,
-  });
-  app.get(baseUrl + "/memes/:meme_id/*splat", limiter, async (req, res) => {
-    console.log("Inside getByMemeIds");
-    // how can I get each meme id, get in order, and check them.
+  /*
+    Cannot use the slowdown or ratelimit because they have to be used at app
+    initialization
+   */
+  app.get(
+    baseUrl + "/memes/:meme_id/{*splat}",
+    async (req: Request, res: Response, next: NextFunction) => {
+      // how can I get each meme id, get in order, and check them.
 
-    const { meme_id, splat } = req.params;
+      // splat is an array
+      const { meme_id, splat } = req.params;
 
-    const memeIds = [meme_id, ...splat.split("/")];
-    const result: Meme[] = [];
+      const memeIds = [meme_id, ...splat];
+      const result: Meme[] = [];
 
-    for (let memeId of memeIds) {
-      const { data } = await supabase
-        .from("Memes")
-        .select()
-        .eq("meme_id", parseInt(memeId));
+      for (let memeId of memeIds) {
+        const { data, error, status } = await supabase
+          .from("Memes")
+          .select()
+          .eq("meme_id", parseInt(memeId));
 
-      if (!data) {
-        res.status(404).json({
-          success: false,
-          error: `There is an undefined meme_id within the path, potentially at position number ${
-            result.length + 1
-          }.`,
-        });
-        next();
-        return;
+        if (error) {
+          res.status(status).json({
+            success: false,
+            error: `There is an undefined meme_id within the path, potentially at position number ${
+              result.length + 1
+            }.`,
+          });
+          next();
+          return;
+        }
+        result.push(...data);
       }
-      result.push(...data);
+
+      res.json({
+        success: true,
+        memes: result,
+      });
+
+      next();
+      return;
     }
-
-    res.json({
-      success: true,
-      memes: result,
-    });
-  });
-
-  next();
+  );
 }

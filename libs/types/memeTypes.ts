@@ -10,6 +10,7 @@ export interface Meme {
   replyTo: number | null;
   imageUrl: string | null;
   createdAt: string | Date | number;
+  likes: number;
   meme_id: number;
 }
 

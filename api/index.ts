@@ -7,6 +7,33 @@ import { memesGetEndpoint } from "./endpoints/meme-endpoints/getMemes";
 import { memesPostEndpoint } from "./endpoints/meme-endpoints/postMeme";
 import { supabase } from "./supabase-init";
 import slowDown from "express-slow-down";
+import {
+  deleteByUserId,
+  deleteFriend,
+  deleteFriendRequest,
+  getByUserId,
+  getByUsername,
+  getFriendByUserId,
+  getFriendRequestType,
+  getFriends,
+  getLikedMemeByUserId,
+  getLikedMemesByUserId,
+  getRequestByTarget,
+  getUsers,
+  newFriend,
+  newFriendRequest,
+  postUsers,
+  putByUserId,
+} from "./endpoints/user-endpoints/userCalls";
+import {
+  memesIdLikesGetEndpoint,
+  memesIdLikesUserIdDeleteEndpoint,
+  memesIdLikesUserIdGetEndpoint,
+  memesIdLikesUserIdPutEndpoint,
+  memesIdsPutEndpoint,
+  memesSearchEndpoint,
+} from "./endpoints/meme-endpoints/memeCalls";
+import { metadataInfoEndpoint } from "./endpoints/metadataCall";
 
 export const app = express();
 export const baseUrl = "/api";
@@ -26,20 +53,22 @@ app.use(
   rateLimit({
     windowMs: 1000,
     limit: 10, // 10 req per sec
-    handler: (req, res, next, options) => {
+    handler: async (req, res, next, options) => {
+      console.log("Rate Limit Called!!");
       // Setting timeouts
-      supabase
+      await supabase
         .from("Memes")
         .select()
         .abortSignal(AbortSignal.timeout(1000 * 30));
 
-      supabase
+      await supabase
         .from("Users")
         .select()
         .abortSignal(AbortSignal.timeout(1000 * 30));
 
+      const statusCode = options?.statusCode ?? 429;
       res
-        .status(options.statusCode)
+        .status(statusCode)
         .send("Too many Requests! Try again after 30 seconds!! 🤓");
       return AbortSignal.timeout(1000 * 30);
     },
@@ -49,32 +78,89 @@ app.use(
     windowMs: 1000, // Time to remember request, so requests will be in memory for 1 seconds
     // basically, 10 requests per second or the requests will be rate limited
     delayAfter: 10,
-    delayMs: (hits) => hits * 10 + 1000 * 30, // base is 30 seconds, but after 10 requests, the time will increment by 10 seconds
+    delayMs: () => 1000 * 30, // base is 30 seconds, but after 10 requests, the time will increment by 10 seconds
     maxDelayMs: 1000 * 60,
   })
 );
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+// ERROR HANDLING!!
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   if (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(err.status || 500).json({ success: false, error: err });
   }
   next();
+  return;
 });
 
 app.use(apiKeyAuth);
 
-app.use(memesGetEndpoint);
+// INFO ENDPOINT!!
+metadataInfoEndpoint(app, baseUrl);
 
-app.use(memesPostEndpoint);
+// MEME ENDPOINTS!!!
+memesGetEndpoint(app, baseUrl);
 
-app.use(getByMemeIds);
+memesPostEndpoint(app, baseUrl);
 
+getByMemeIds(app, baseUrl);
+
+memesIdsPutEndpoint(app, baseUrl);
+
+memesIdLikesGetEndpoint(app, baseUrl);
+
+memesIdLikesUserIdGetEndpoint(app, baseUrl);
+
+memesIdLikesUserIdDeleteEndpoint(app, baseUrl);
+
+memesIdLikesUserIdPutEndpoint(app, baseUrl);
+
+memesSearchEndpoint(app, baseUrl);
+
+// USER ENDPOINTS!!!
+getUsers(app, baseUrl);
+
+postUsers(app, baseUrl);
+
+getByUserId(app, baseUrl);
+
+getByUsername(app, baseUrl);
+
+deleteByUserId(app, baseUrl);
+
+putByUserId(app, baseUrl);
+
+getLikedMemesByUserId(app, baseUrl);
+
+getLikedMemeByUserId(app, baseUrl);
+
+getFriends(app, baseUrl);
+
+getFriendByUserId(app, baseUrl);
+
+deleteFriend(app, baseUrl);
+
+newFriend(app, baseUrl);
+
+getFriendRequestType(app, baseUrl);
+
+getRequestByTarget(app, baseUrl);
+
+deleteFriendRequest(app, baseUrl);
+
+newFriendRequest(app, baseUrl);
 /**
  * 8/24/2025 01:16
  * May have to use regex to include the optional parameters of the endpoints
  *
  */
+
+app.get("/test", (req, res, next) => {
+  console.log("Test endpoint called!! 🤯");
+  res.json({ success: true, message: "The ONE PIECE IS REAL!!! 🧔🏼" });
+  next();
+  return;
+});
 
 app.get("/", (res: Response) => {
   res.json({ message: "Welcome to the Express + TypeScript Server!" });

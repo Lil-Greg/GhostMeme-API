@@ -27,4 +27,5 @@ export function apiKeyAuth(req: Request, res: Response, next: NextFunction) {
   // Check the amount of requests for this api key.
 
   next();
+  return;
 }

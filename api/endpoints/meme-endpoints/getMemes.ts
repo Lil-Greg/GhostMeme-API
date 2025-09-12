@@ -1,4 +1,3 @@
-import { app, baseUrl } from "../..";
 import { supabase } from "../../supabase-init";
 
 /**
@@ -6,8 +5,8 @@ import { supabase } from "../../supabase-init";
  *
  * https://hscc6xt8cqqf.docs.apiary.io/#/reference/0/meme-endpoints/memes-get
  */
-export function memesGetEndpoint(req, res, next) {
-  app.get(baseUrl + "/memes", async (req, res) => {
+export function memesGetEndpoint(app, baseUrl) {
+  app.get(baseUrl + "/memes", async (req, res, next) => {
     const { after: afterQuery } = req.query;
 
     let after = "";
@@ -42,7 +41,8 @@ export function memesGetEndpoint(req, res, next) {
       });
     }
     res.status(status).json({ success: true, memes: data });
-  });
 
-  next();
+    next();
+    return;
+  });
 }
